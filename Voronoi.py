@@ -66,6 +66,9 @@ class Voronoi:
                        
                     self.priorpt = self.points[len(self.points)-1]
                     root = self.process_point(root) # handle site event
+                else:
+                    p = self.points.pop()
+                    
 
         # after all points, process remaining circle events
         while not self.event.empty():
