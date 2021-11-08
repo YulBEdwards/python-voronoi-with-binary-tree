@@ -32,11 +32,24 @@ class MainWindow:
         self.frmButton = tk.Frame(self.master)
         self.frmButton.pack()
         
-        self.btnCalculate = tk.Button(self.frmButton, text='Calculate', width=25, command=self.onClickCalculate)
+        self.btnCalculate = tk.Button(self.frmButton, text='Calculate', \
+                                      width=20, command=self.onClickCalculate)
         self.btnCalculate.pack(side=tk.LEFT)
         
-        self.btnClear = tk.Button(self.frmButton, text='Clear', width=25, command=self.onClickClear)
+        self.btnClear = tk.Button(self.frmButton, text='Clear', \
+                                  width=20, command=self.onClickClear)
         self.btnClear.pack(side=tk.LEFT)
+
+        self.btnVerbose = tk.Button(self.frmButton, text='Exit Verbose', \
+                                    width=20, command=self.onClickVerbose)
+        self.btnVerbose.pack(side=tk.LEFT)
+
+
+        self.btnExit = tk.Button(self.frmButton, text='Exit',width=20, \
+                                 command=self.onClickClose)
+        self.btnExit.pack(side=tk.LEFT)
+
+        self.verbose = True
         
     def onClickCalculate(self):
         if not self.LOCK_FLAG:
@@ -54,13 +67,28 @@ class MainWindow:
                 if flag == 2: flag = 0
 
             vp = Voronoi(points)
+            
+            if self.verbose is False: vp.verbose = False
+            else: vp.verbose = True
+            
             vp.process()
             lines = vp.get_output()
             self.drawLinesOnCanvas(lines)
-            
+
             #for L in lines:
             #   print(L)
 
+    def onClickClose(self):
+        self.master.destroy()
+        
+    def onClickVerbose(self):
+        if self.verbose is False:
+            self.btnVerbose['text'] = 'Exit Verbose'
+            self.verbose = True
+        else:
+            self.btnVerbose['text'] = 'Set Verbose'
+            self.verbose = False
+        
     def onClickClear(self):
         self.LOCK_FLAG = False
         self.w.delete(tk.ALL)

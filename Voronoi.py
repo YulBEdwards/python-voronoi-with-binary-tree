@@ -1,7 +1,7 @@
 
-import math
+import math, heapq
 
-from DataType import Point, Event, Arc, Node, Segment, PriorityQueue
+from DataType import Point, Event, Arc, Node, Segment
 
 from BinaryTree import AVLTree
 
@@ -14,7 +14,7 @@ class Voronoi:
 
         self.points = []
         self.rawpoints = []
-        self.event = PriorityQueue() # circle events
+        self.event = [] # circle events
         
         self.priorpt = None
         self.node = None
@@ -56,8 +56,11 @@ class Voronoi:
         root = None
         self.arcno = 0
         while len(self.points) > 0:
-            if not self.event.empty() and (self.event.top().x <= \
-                                           self.points[len(self.points)-1].x):
+            
+            if len(self.event) > 0: priority, e = self.event[0]
+            else: e = None
+            
+            if e is not None and (e.x <= self.points[len(self.points)-1].x):
                 root = self.process_event(root) # handle circle event
             else:
                 if self.priorpt is None or \
@@ -67,11 +70,12 @@ class Voronoi:
                     self.priorpt = self.points[len(self.points)-1]
                     root = self.process_point(root) # handle site event
                 else:
+                    print("Removing duplicate")
                     p = self.points.pop()
                     
 
         # after all points, process remaining circle events
-        while not self.event.empty():
+        while len(self.event) > 0:
             root = self.process_event(root)
 
         self.finish_edges()
@@ -100,7 +104,7 @@ class Voronoi:
 
     def process_event(self, root):
         # get next event from circle pq
-        e = self.event.pop()
+        priority, e = heapq.heappop(self.event)
         self.curx = e.x
         if e.valid:
             
@@ -278,7 +282,9 @@ class Voronoi:
             if self.verbose: print("At x:", round(self.curx),\
                                    "Adding c:",round(x),";",round(i.p.y),\
                                    round(i.aprev.p.y),round(i.anext.p.y))
-            self.event.push(i.e)
+            entry = [i.e.x,i.e]
+            heapq.heappush(self.event,entry)
+            #self.event.push(i.e)
 
     def circle(self, a, b, c):
         # check if bc is a "right turn" from ab
