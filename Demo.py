@@ -11,8 +11,8 @@ from Voronoi import Voronoi
 
 class MainWindow:
     # radius of drawn points on canvas
-    RADIUS = 1.5
-    label = True
+    RADIUS = 1
+
     
     # flag to lock the canvas when drawn
     LOCK_FLAG = False
@@ -44,27 +44,25 @@ class MainWindow:
                                     width=20, command=self.onClickVerbose)
         self.btnVerbose.pack(side=tk.LEFT)
 
-
         self.btnExit = tk.Button(self.frmButton, text='Exit',width=20, \
                                  command=self.onClickClose)
         self.btnExit.pack(side=tk.LEFT)
 
         self.verbose = True
+        self.label = True
+        self.haveLines = False
         
     def onClickCalculate(self):
         if not self.LOCK_FLAG:
             self.LOCK_FLAG = True
 
-            pObj = self.w.find_all()
+            pObj = self.w.find_withtag("point")
             points = []
             print("start")
             flag = 0            
             for p in pObj:
-                if flag == 0:
-                    coord = self.w.coords(p)                 
-                    points.append((coord[0]+self.RADIUS, coord[1]+self.RADIUS))
-                flag = flag+1
-                if flag == 2: flag = 0
+                coord = self.w.coords(p)                 
+                points.append((coord[0]+self.RADIUS, coord[1]+self.RADIUS))
 
             vp = Voronoi(points)
             
@@ -74,7 +72,8 @@ class MainWindow:
             vp.process()
             lines = vp.get_output()
             self.drawLinesOnCanvas(lines)
-
+            self.haveLines = True
+            
             #for L in lines:
             #   print(L)
 
@@ -91,17 +90,24 @@ class MainWindow:
         
     def onClickClear(self):
         self.LOCK_FLAG = False
-        self.w.delete(tk.ALL)
+        #self.w.delete(tk.ALL)
+        if self.haveLines:
+            self.w.delete('line')
+            self.haveLines = False
+        else:
+            self.w.delete(tk.ALL)
 
     def onDoubleClick(self, event):
         if not self.LOCK_FLAG:
-            self.w.create_oval(event.x-self.RADIUS, event.y-self.RADIUS, event.x+self.RADIUS, event.y+self.RADIUS, fill="black")
+            self.w.create_oval(event.x-self.RADIUS, event.y-self.RADIUS, \
+                event.x+self.RADIUS, event.y+self.RADIUS, fill="black", tag="point")
             t =   "   "+str(event.x)+" "+str(event.y)
-            if self.label: self.w.create_text(event.x,event.y,anchor="s",font=("Ariel", 7),text=t)
+            if self.label: self.w.create_text(event.x,event.y,anchor="s", \
+                font=("Ariel", 7),text=t, tag="label")
 
     def drawLinesOnCanvas(self, lines):
         for l in lines:
-            self.w.create_line(l[0], l[1], l[2], l[3], fill='blue')
+            self.w.create_line(l[0], l[1], l[2], l[3], fill='blue', tag="line")
 
 def main(): 
     root = tk.Tk()
