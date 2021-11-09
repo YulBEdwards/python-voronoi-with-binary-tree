@@ -1,3 +1,5 @@
+        # BinaryTree.py
+
 from DataType import Point, Node, Event, Arc
 
 import sys, math
@@ -11,11 +13,6 @@ class AVLTree(object):
         self.pp = None
         self.pn = None
         
-    # function for LT test
-    def LTTest(self, p1, p2):
-        if (p2 is None) or (p1.y < p2.y): return True
-        return False
-    
     # get the representative point on this arc
     def chkpt(self,n,p):
         
@@ -76,7 +73,7 @@ class AVLTree(object):
 
         self.chkpt(root,p)
         
-        if self.pp is not None and self.LTTest(p, self.pp) \
+        if (self.pp is not None and p.y < self.pp.y) \
             and (root.left is not None):
             
             root.left = self.insert_node(root.left, p)
