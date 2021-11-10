@@ -21,6 +21,7 @@ class Voronoi:
         self.arcno = 0
         self.curx = None
         self.verbose = True
+        self.firstx = None
         
         self.bt = AVLTree()
         
@@ -159,16 +160,18 @@ class Voronoi:
             self.arc.number = self.arcno
             root = Node(p)
             root.arc = self.arc
+            self.firstx = p.x
         else:
             # find the current arcs at p.y
             
             self.bt.nodea = None            
             root = self.bt.insert_node(root, p)
 
-            print("BT start:",self.bt.basen.arc.number, round(self.bt.basen.arc.p.y))
+            if self.bt.basen is not None:
+                print("BT start:",self.bt.basen.arc.number, round(self.bt.basen.arc.p.y))
             
             i = self.arc               
-            while i is not None:
+            while (i is not None) and (p.x != self.firstx):
                 flag, z = self.intersect(p, i)
                 if flag:    # true if new parabola intersects arc i
                         
@@ -236,14 +239,18 @@ class Voronoi:
                         
                 i = i.anext
 
-            # If p never intersects an arc, append it to the list
-            #  i.e. it is a point beyond the last arc
-         
+            # If p is subsequent point on sweep line start
+
             i = self.arc
             while i.anext != None:
                 i = i.anext
+            print("SS start:",i.number, round(i.p.y))
+
             i.anext = Arc(p, i)
-            root = self.bt.insert_node(root,p,i.anext)
+            self.arcno = self.arcno+1
+            i.anext.number = self.arcno
+            i.anext.node = self.bt.nodea
+            self.bt.nodea.arc = i.anext
             
             # Insert new segment between p and i
             # Initial point starts at x0
@@ -254,6 +261,17 @@ class Voronoi:
             seg = Segment(start)
             i.s1 = i.anext.s0 = seg
             self.output.append(seg)
+
+            if self.verbose: self.bt.printHelper(root, "", True)
+
+            if self.verbose:
+                arc = self.arc
+                string = "Ins "
+                while arc is not None:
+                    string = string + str(arc.number) + " "
+                    arc = arc.anext
+                print(string)
+
         return root
             
 

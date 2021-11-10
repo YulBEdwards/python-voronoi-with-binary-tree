@@ -78,16 +78,14 @@ class AVLTree(object):
             
             root.left = self.insert_node(root.left, p)
 
-        elif root.arc.p.x == p.x and root.arc.p.y != p.y or \
-            not ( (self.pp is None and self.pn is None)
+        elif root.right is not None and (root.arc.p.x == p.x and root.arc.p.y != p.y or \
+            not ( (self.pp is None and self.pn is None) \
             or (self.pp is not None and self.pn is not None and self.pn.y == self.pp.y)\
             or (self.pn is None and self.pp is not None and p.y > self.pp.y) \
             or (self.pp is None and self.pn is not None and p.y < self.pn.y) \
             or (self.pn is not None and self.pp is not None and \
-                 p.y < self.pn.y and self.pp.y < p.y)):
-
-            if root.right is not None:
-                root.right = self.insert_node(root.right, p)
+                 p.y < self.pn.y and self.pp.y < p.y))): \
+              root.right = self.insert_node(root.right, p)
                 
         else:
             self.basen = root
