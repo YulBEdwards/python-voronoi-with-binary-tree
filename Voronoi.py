@@ -82,7 +82,7 @@ class Voronoi:
         self.finish_edges()
 
         if not self.verbose:
-            print("At end:")
+            print("Convex hull at end:")
             self.bt.printHelper(root, "", True)
             arc = self.arc
             string = " "
@@ -167,24 +167,24 @@ class Voronoi:
             self.bt.nodea = None            
             root = self.bt.insert_node(root, p)
 
-            if self.bt.basen is not None:
-                print("BT start:",self.bt.basen.arc.number, round(self.bt.basen.arc.p.y))
+            if self.verbose:
+                print("BT start:",self.bt.basen.arc.number, \
+                      round(self.bt.basen.arc.p.y))
             
-            i = self.arc               
-            while (i is not None) and (p.x != self.firstx):
+            i = self.bt.basen.arc
+            
+            if p.x != self.firstx:
                 flag, z = self.intersect(p, i)
                 if flag:    # true if new parabola intersects arc i
-                        
-                    print("SS start:",i.number, round(i.p.y))
 
                     flag, zz = self.intersect(p, i.anext)
                     
                     if (i.anext is not None) and (not flag):
-                        # anext exists and p intersects anext as well as i
+                        # anext exists and p does not on anext
                         i.anext.aprev = Arc(i.p, i, i.anext)
                         i.anext = i.anext.aprev
                     else:
-                        # No anext or have anext and p is not on anext arc
+                        # No anext or p is on anext
                         i.anext = Arc(i.p, i)
 
                     
@@ -236,41 +236,34 @@ class Voronoi:
                         print(string)
                     
                     return root
-                        
-                i = i.anext
 
             # If p is subsequent point on sweep line start
-
-            i = self.arc
-            while i.anext != None:
-                i = i.anext
-            print("SS start:",i.number, round(i.p.y))
-
-            i.anext = Arc(p, i)
-            self.arcno = self.arcno+1
-            i.anext.number = self.arcno
-            i.anext.node = self.bt.nodea
-            self.bt.nodea.arc = i.anext
+            else:
+                i.anext = Arc(p, i)
+                self.arcno = self.arcno+1
+                i.anext.number = self.arcno
+                i.anext.node = self.bt.nodea
+                self.bt.nodea.arc = i.anext
             
-            # Insert new segment between p and i
-            # Initial point starts at x0
-            x = self.x0
-            y = (i.anext.p.y + i.p.y) / 2.0;
-            start = Point(x, y)
+                # Insert new segment between p and i
+                # Initial point starts at x0
+                x = self.x0
+                y = (i.anext.p.y + i.p.y) / 2.0;
+                start = Point(x, y)
 
-            seg = Segment(start)
-            i.s1 = i.anext.s0 = seg
-            self.output.append(seg)
+                seg = Segment(start)
+                i.s1 = i.anext.s0 = seg
+                self.output.append(seg)
 
-            if self.verbose: self.bt.printHelper(root, "", True)
+                if self.verbose: self.bt.printHelper(root, "", True)
 
-            if self.verbose:
-                arc = self.arc
-                string = "Ins "
-                while arc is not None:
-                    string = string + str(arc.number) + " "
-                    arc = arc.anext
-                print(string)
+                if self.verbose:
+                    arc = self.arc
+                    string = "Ins "
+                    while arc is not None:
+                        string = string + str(arc.number) + " "
+                        arc = arc.anext
+                    print(string)
 
         return root
             
